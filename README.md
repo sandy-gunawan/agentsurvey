@@ -58,6 +58,7 @@ Seluruh sumber daya berada dalam satu resource group, dan **seluruh akses antarl
 | [docs/TRACE.md](docs/TRACE.md) | Orang baru yang ingin tahu alur dari browser sampai kembali ke browser |
 | [docs/CODE.md](docs/CODE.md) | Pengembang yang akan mengubah kode |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Menerapkan, memperbarui, dan menghapus |
+| [CHANGELOG.md](CHANGELOG.md) | Riwayat perubahan beserta alasannya |
 
 ---
 
