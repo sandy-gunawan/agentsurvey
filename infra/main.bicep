@@ -18,6 +18,9 @@ param modelVersion string = '2025-08-07'
 @description('Kapasitas deployment model dalam ribuan token per menit.')
 param modelCapacity int = 10
 
+@description('Setel "true" untuk menyalakan arsip bukti di Blob Storage. Perlu langganan yang mengizinkan akses jaringan publik pada storage.')
+param enableStorage string = 'false'
+
 var tags = { 'azd-env-name': environmentName }
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -36,6 +39,7 @@ module resources 'resources.bicep' = {
     modelName: modelName
     modelVersion: modelVersion
     modelCapacity: modelCapacity
+    enableStorage: enableStorage == 'true'
   }
 }
 
@@ -51,4 +55,5 @@ output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.environm
 output AZURE_AI_ENDPOINT string = resources.outputs.aiEndpoint
 output AZURE_AI_DEPLOYMENT string = resources.outputs.aiDeployment
 output AZURE_MAPS_CLIENT_ID string = resources.outputs.mapsClientId
+output AZURE_STORAGE_ACCOUNT_URL string = resources.outputs.storageAccountUrl
 output SERVICE_WEB_URI string = resources.outputs.webUri

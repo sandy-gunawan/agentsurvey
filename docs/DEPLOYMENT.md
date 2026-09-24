@@ -95,6 +95,7 @@ Diatur lewat variabel lingkungan azd, tanpa mengubah kode.
 | Nama model | `AZURE_AI_MODEL_NAME` | `gpt-5-mini` |
 | Versi model | `AZURE_AI_MODEL_VERSION` | `2025-08-07` |
 | Kapasitas model | parameter Bicep `modelCapacity` | `10` |
+| Arsip bukti di Blob Storage | `ENABLE_STORAGE` | `false` |
 | Region | `AZURE_LOCATION` | `southeastasia` |
 
 Mengganti model:
@@ -179,14 +180,29 @@ Empat hal berikut ditemukan saat penerapan pertama dan **sudah diperbaiki di kod
 
 Storage account dibuat dengan `publicNetworkAccess` bernilai `Disabled`, dan **tetap `Disabled` meski Bicep menyetelnya `Enabled`**. Ini ditegakkan oleh Azure Policy di tingkat yang lebih tinggi dari langganan.
 
-**Akibatnya:** Blob Storage dilepas dari rancangan demo.
+**Akibatnya:** Blob Storage **mati secara bawaan**, dan arsip bukti dilewati.
 
 | Konsekuensi | Penjelasan |
 |---|---|
 | Bukti tidak tersimpan permanen | Foto hanya diproses, tidak diarsipkan |
 | Deteksi foto berulang terbatas | Indeks disimpan di memori dan hilang saat aplikasi mati |
 
-Untuk produksi, ini memerlukan private endpoint dengan Container Apps terintegrasi VNet, dan biayanya lebih tinggi.
+### Menyalakan Arsip Bukti
+
+Di langganan yang **tidak** menerapkan policy tersebut, fiturnya dapat dinyalakan tanpa mengubah kode:
+
+```powershell
+azd env set ENABLE_STORAGE true
+azd up
+```
+
+Penerapan akan membuat storage account, kontainer `bukti`, peran `Storage Blob Data Contributor`, serta mengisi variabel `AZURE_STORAGE_ACCOUNT_URL` dan `AZURE_STORAGE_CONTAINER` pada aplikasi. Kode di `storage.py` mengenalinya secara otomatis.
+
+Pastikan dengan memanggil `/api/health` dan melihat `storageConfigured` bernilai `true`.
+
+> **Catatan.** Setelah dinyalakan, tunggu beberapa menit sebelum menguji. Peran data plane pada Storage memerlukan waktu untuk menyebar, dan sebelum itu panggilan akan ditolak dengan `AuthorizationFailure`.
+
+Untuk tetap memakainya di langganan yang menerapkan policy, diperlukan private endpoint dengan Container Apps terintegrasi VNet, dan biayanya lebih tinggi.
 
 ### 9.2 Model Menolak `temperature`
 

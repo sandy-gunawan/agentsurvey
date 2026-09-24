@@ -278,7 +278,7 @@ Tata letak blob:
 index/hashes.json
 ```
 
-> **Status saat ini.** Blob Storage nonaktif pada demo karena Azure Policy memaksa `publicNetworkAccess` menjadi `Disabled`. Lihat DEPLOYMENT.md §9.1.
+> **Status saat ini.** Arsip bukti **mati secara bawaan**. Nyalakan dengan `azd env set ENABLE_STORAGE true` lalu `azd up`, selama langganan mengizinkan akses jaringan publik pada storage. Lihat DEPLOYMENT.md §9.1.
 
 > **Batasan.** `append_index` membaca seluruh indeks lalu menulisnya kembali. Tidak aman bila ada penulisan bersamaan, dan tidak dapat diskalakan. Untuk produksi, gunakan basis data.
 

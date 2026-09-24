@@ -68,8 +68,8 @@ Proyek ini berstatus **demo**, bukan produk siap pakai.
 | Batasan | Keterangan |
 |---|---|
 | Endpoint tanpa autentikasi | Siapa pun yang tahu alamatnya dapat memanggil dan menimbulkan biaya model |
-| Bukti tidak tersimpan permanen | Blob Storage dilepas karena Azure Policy memaksa akses jaringan publik nonaktif |
-| Deteksi foto berulang terbatas | Indeks berada di memori dan hilang saat aplikasi mati |
+| Bukti tidak tersimpan permanen | Arsip bukti mati secara bawaan. Nyalakan dengan `azd env set ENABLE_STORAGE true` bila langganan mengizinkan |
+| Deteksi foto berulang terbatas | Tanpa arsip, indeks berada di memori dan hilang saat aplikasi mati |
 | Hasil bervariasi antarpercobaan | Model keluarga GPT-5 tidak menerima penyetelan `temperature` |
 | Belum ada pengujian otomatis | Prioritas pengujian tercantum di docs/CODE.md |
 

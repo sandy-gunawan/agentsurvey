@@ -4,15 +4,24 @@ param tags object
 param modelName string
 param modelVersion string
 param modelCapacity int
+param enableStorage bool = false
 
 var token = toLower(uniqueString(subscription().id, resourceGroup().id, environmentName))
 var prefix = take(replace(toLower(environmentName), '-', ''), 12)
 var aiSubdomain = '${prefix}-ai-${token}'
 
+var storageEnv = enableStorage
+  ? [
+      { name: 'AZURE_STORAGE_ACCOUNT_URL', value: storage.?properties.primaryEndpoints.blob ?? '' }
+      { name: 'AZURE_STORAGE_CONTAINER', value: 'bukti' }
+    ]
+  : []
+
 var roles = {
   acrPull: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
   openAiUser: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
   mapsDataReader: '423170ca-a8f6-4b0f-8487-9e4eb8f49bfa'
+  blobContributor: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 }
 
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -52,6 +61,36 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = 
   sku: { name: 'Basic' }
   properties: {
     adminUserEnabled: false
+  }
+}
+
+resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = if (enableStorage) {
+  name: '${take(prefix, 8)}st${take(token, 10)}'
+  location: location
+  tags: tags
+  sku: { name: 'Standard_LRS' }
+  kind: 'StorageV2'
+  properties: {
+    allowSharedKeyAccess: false
+    allowBlobPublicAccess: false
+    publicNetworkAccess: 'Enabled'
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+    }
+  }
+
+  resource blob 'blobServices@2023-05-01' = {
+    name: 'default'
+    properties: {
+      isVersioningEnabled: true
+    }
+
+    resource container 'containers@2023-05-01' = {
+      name: 'bukti'
+    }
   }
 }
 
@@ -124,6 +163,16 @@ resource mapsReader 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
+resource blobWriter 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableStorage) {
+  name: guid(resourceGroup().id, identity.id, roles.blobContributor)
+  scope: storage
+  properties: {
+    principalId: identity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roles.blobContributor)
+  }
+}
+
 resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: '${prefix}-cae-${token}'
   location: location
@@ -173,13 +222,13 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json('0.5')
             memory: '1Gi'
           }
-          env: [
+          env: concat([
             { name: 'AZURE_CLIENT_ID', value: identity.properties.clientId }
             { name: 'AZURE_AI_ENDPOINT', value: 'https://${aiSubdomain}.openai.azure.com/' }
             { name: 'AZURE_AI_DEPLOYMENT', value: model.name }
             { name: 'AZURE_MAPS_CLIENT_ID', value: maps.properties.uniqueId }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: insights.properties.ConnectionString }
-          ]
+          ], storageEnv)
         }
       ]
       scale: {
@@ -198,4 +247,5 @@ output environmentName string = env.name
 output aiEndpoint string = 'https://${aiSubdomain}.openai.azure.com/'
 output aiDeployment string = model.name
 output mapsClientId string = maps.properties.uniqueId
+output storageAccountUrl string = storage.?properties.primaryEndpoints.blob ?? ''
 output webUri string = 'https://${web.properties.configuration.ingress.fqdn}'
