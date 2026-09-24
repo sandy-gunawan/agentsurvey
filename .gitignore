@@ -1,0 +1,22 @@
+# Lingkungan azd, berisi status per pengembang
+.azure/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Editor
+.vscode/
+.idea/
+
+# Sistem
+.DS_Store
+Thumbs.db
+
+# Berkas lingkungan
+.env
+.env.local
+*.env.lock

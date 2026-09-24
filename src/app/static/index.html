@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Review Bukti Survei Rumah</title>
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<header>
+  <h1>Asisten Review Bukti Survei Rumah</h1>
+  <p class="sub">Demo. Hasil bersifat bantuan, bukan penilaian dan bukan keputusan kredit.</p>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Masukan</h2>
+    <form id="form">
+      <label>Nomor berkas
+        <input name="caseId" value="DEMO-001" required />
+      </label>
+
+      <div class="row">
+        <label>Lintang
+          <input name="latitude" type="number" step="any" placeholder="-6.24150" required />
+        </label>
+        <label>Bujur
+          <input name="longitude" type="number" step="any" placeholder="106.99230" required />
+        </label>
+      </div>
+      <p class="hint">Ambil dari peta: klik kanan lokasi, lalu salin koordinatnya.</p>
+
+      <label>Alamat pada data pengajuan
+        <input name="claimedAddress" placeholder="Jl. Melati III No. 12, Bekasi" />
+      </label>
+
+      <label>Daftar foto wajib, satu per baris
+        <textarea name="requiredPhotos" rows="5">tampak-depan
+nomor-rumah
+jalan-kiri
+jalan-kanan
+ruang-tamu</textarea>
+      </label>
+      <p class="hint">Dicocokkan dengan nama berkas foto yang diunggah.</p>
+
+      <label>Foto
+        <input id="photos" name="photos" type="file" accept="image/*" multiple required />
+      </label>
+
+      <button type="submit" id="submit">Proses</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Hasil</h2>
+    <div id="status" class="status">Belum ada berkas diproses.</div>
+    <div id="result" hidden>
+      <div id="recommendation" class="reco"></div>
+      <h3>Temuan bangunan</h3>
+      <table id="findings"></table>
+      <h3>Lokasi</h3>
+      <table id="location"></table>
+      <h3>Penanda</h3>
+      <ul id="flags"></ul>
+      <h3>Tidak dapat dinilai</h3>
+      <ul id="cannot"></ul>
+      <h3>Foto sumber</h3>
+      <div id="thumbs" class="thumbs"></div>
+      <details>
+        <summary>Keluaran mentah</summary>
+        <pre id="raw"></pre>
+      </details>
+    </div>
+  </section>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
